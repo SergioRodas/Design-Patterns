@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observer</title>
+    <style>
+        .container{
+            width: 90%;
+            height: 140px;
+            padding:5px;
+            margin: 10px auto;
+            background-color:#eeeeee;
+            display:-webkit-flex; 
+            display: -ms-flexbox; 
+        }
+        .container .nowrap{
+            -webkit-flex-wrap: nowrap;
+            -ms-flex-wrap: nowrap;
+            flex-wrap: nowrap;
+        }
+        .box{
+            background-color:#ccc;
+            margin: 10px;
+            width:100%;
+            border: 1px solid;
+            padding: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <label>Texto: </label>
+        <textarea style="width: 100%; height: 100px;" id="mitexto"></textarea>
+    </div>
+    <div class="container nowrap" >
+        <div id="div1" class="box"></div>
+        <div id="div2" class="box"></div>
+        <div id="div3" class="box"></div>
+    </div>
+</body>
+<script>
+    class Subject {
+        constructor() {
+            this.observers = [];
+        }
+        subscribe(o){
+            this.observers.push(o);
+        }
+        unsubscribe(o){
+            this.observers = this.observers.filter(e => e!=0);
+        }
+        notify(model){
+            this.observers.forEach(observer => {
+                observer.notify(model);
+            })
+        }
+    }
+
+    class TextSubjet extends Subject{
+        constructor(){
+            super();
+            this.text = "";
+        }
+        notify(text){
+            this.text = text;
+            super.notify(this);
+        }
+    }
+
+    class DivObserver1 {
+        notify(subject) {
+            document.getElementById("div1").innerHTML = subject.text;
+        }
+    }
+
+    class DivObserver2 {
+        notify(subject) {
+            document.getElementById("div2").innerHTML = subject.text.length;
+        }
+    }
+
+    class DivObserver3 {
+        notify(subject) {
+            if(subject.text.search("cerveza") >= 0){
+                document.getElementById("div3").innerHTML = "Salud!";
+            } else {
+                document.getElementById("div3").innerHTML = ":(";
+            }
+        }
+    }
+
+    var textSubjet = new TextSubjet();
+    let miDiv1 = new DivObserver1();
+    let miDiv2 = new DivObserver2();
+    let miDiv3 = new DivObserver3();
+    textSubjet.subscribe(miDiv1);
+    textSubjet.subscribe(miDiv2);
+    textSubjet.subscribe(miDiv3);
+
+    document.getElementById("mitexto").addEventListener("input", (event) => {
+        textSubjet.notify(event.target.value);
+    });
+
+</script>
+</html>
